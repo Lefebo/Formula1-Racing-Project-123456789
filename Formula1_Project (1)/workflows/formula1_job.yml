@@ -1,0 +1,125 @@
+resources:
+  jobs:
+    formula1_Car_racing_job:
+      name: formula1_Car_racing_job
+      tasks:
+        - task_key: 01_Ingest_Results_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/05.Ingest _Results_File
+            source: WORKSPACE
+        - task_key: 01_Ingest_Sprints_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/06.Ingest _Sprints_File
+            source: WORKSPACE
+        - task_key: 01_Ingest_constructor_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/03.Ingest _Constructors_File
+            source: WORKSPACE
+        - task_key: 01_Ingest_drivers_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/04.Ingest _Drivers_File
+            source: WORKSPACE
+        - task_key: 01_Ingest_races_date
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/02.Ingest Race File
+            source: WORKSPACE
+        - task_key: 01_ingest_circuit_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/01.
+              bronze/01.Ingest Circuits File
+            source: WORKSPACE
+          max_retries: 1
+          min_retry_interval_millis: 120000
+          disable_auto_optimization: false
+          environment_key: 01_ingest_circuit_data_environment
+        - task_key: 02_Transform_Circuit_Data
+          depends_on:
+            - task_key: 01_ingest_circuit_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/1.Silver_transformation_circuit
+            source: WORKSPACE
+        - task_key: 02_Transform_Driver_Data
+          depends_on:
+            - task_key: 01_Ingest_drivers_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/4.Silver_transformation_drivers
+            source: WORKSPACE
+        - task_key: 02_Transform_Races_Data
+          depends_on:
+            - task_key: 01_Ingest_races_date
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/2.Silver_transformation_races
+            source: WORKSPACE
+        - task_key: 02_Transform_Results_Data
+          depends_on:
+            - task_key: 01_Ingest_Results_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/5.Silver_transformation_results
+            source: WORKSPACE
+        - task_key: 02_Transform_Sprints_Data
+          depends_on:
+            - task_key: 01_Ingest_Sprints_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/6.Silver_transformation_sprints
+            source: WORKSPACE
+        - task_key: 02_Transform_constructor_data
+          depends_on:
+            - task_key: 01_Ingest_constructor_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/02.
+              Silver/3.Silver_transformation_constructors
+            source: WORKSPACE
+        - task_key: 03_Build_Dim_Races
+          depends_on:
+            - task_key: 02_Transform_Circuit_Data
+            - task_key: 02_Transform_Races_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/03.
+              Gold/03. Build Dim_Races
+            source: WORKSPACE
+        - task_key: 03_Create_reference_nationality_region
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/03.
+              Gold/Gold_reference_nationality_region
+            source: WORKSPACE
+        - task_key: 03_Build_Dim_Drivers
+          depends_on:
+            - task_key: 02_Transform_Driver_Data
+            - task_key: 03_Create_reference_nationality_region
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/03.
+              Gold/03. Build Dim_Drivers
+            source: WORKSPACE
+        - task_key: 03_Build_Dim_constructors
+          depends_on:
+            - task_key: 03_Create_reference_nationality_region
+            - task_key: 02_Transform_constructor_data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/03.
+              Gold/03. Build Dim_Constructors
+            source: WORKSPACE
+        - task_key: 03_Build_fact_session_results_table
+          depends_on:
+            - task_key: 02_Transform_Results_Data
+            - task_key: 02_Transform_Sprints_Data
+          notebook_task:
+            notebook_path: /Workspace/Users/ritajohn427@gmail.com/Formula1_Project/03.
+              Gold/04. Build Fact_Season_Results
+            source: WORKSPACE
+      queue:
+        enabled: true
+      environments:
+        - environment_key: 01_ingest_circuit_data_environment
+          spec:
+            environment_version: "5"
+      performance_target: PERFORMANCE_OPTIMIZED
